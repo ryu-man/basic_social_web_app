@@ -22,6 +22,6 @@
 	});
 </script>
 
-<div class="app-root w-full h-full flex flex-col">
+<div class="app-root w-full h-full flex flex-col relative">
 	<slot />
 </div>

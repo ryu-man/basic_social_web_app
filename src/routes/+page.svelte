@@ -56,7 +56,7 @@
 <UploadMediaModal bind:open={openUploadMedialModal} />
 
 <button
-	class="absolute bottom-4 right-4 bg-gray-400 p-2 rounded-full text-gray-50 z-10 hover:brightness-95 active:brightness-90"
+	class="fixed bottom-4 right-4 bg-gray-400 p-2 rounded-full text-gray-50 z-10 hover:brightness-95 active:brightness-90"
 	on:click={onUploadNewVideo}
 >
 	<Plus />
