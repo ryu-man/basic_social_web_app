@@ -1,15 +1,24 @@
 import { S3Client, type S3ClientConfig } from '@aws-sdk/client-s3';
+import {
+	PUBLIC_AWS_ACCESS_KEY_ID,
+	PUBLIC_AWS_REGION,
+	PUBLIC_AWS_SECRET_ACCESS_KEY
+} from '$env/static/public';
 
 const configuration: S3ClientConfig = {
-	region: 'eu-north-1',
+	region: PUBLIC_AWS_REGION,
 	credentials: {
-		accessKeyId: 'AKIARY7LL5ER2MI7ZELY',
-		secretAccessKey: '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'
+		accessKeyId: PUBLIC_AWS_ACCESS_KEY_ID,
+		secretAccessKey: PUBLIC_AWS_SECRET_ACCESS_KEY
 	}
 };
 
-export function initializeS3() {
-	const client = new S3Client(configuration);
+let s3Client: S3Client | undefined = undefined;
 
-	return client;
+export function initializeS3() {
+	if (s3Client) return s3Client;
+
+	s3Client = new S3Client(configuration);
+
+	return s3Client;
 }

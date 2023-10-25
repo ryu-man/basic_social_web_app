@@ -1,20 +1,24 @@
 import { DynamoDBClient, type DynamoDBClientConfig } from '@aws-sdk/client-dynamodb';
+import {
+	PUBLIC_AWS_ACCESS_KEY_ID,
+	PUBLIC_AWS_REGION,
+	PUBLIC_AWS_SECRET_ACCESS_KEY
+} from '$env/static/public';
 
-const clients: Record<string, DynamoDBClient> = {};
+let dynamoClient: DynamoDBClient | undefined = undefined;
 
 const configuration: DynamoDBClientConfig = {
-	region: 'eu-north-1',
+	region: PUBLIC_AWS_REGION,
 	credentials: {
-		accessKeyId: 'AKIARY7LL5ER2MI7ZELY',
-		secretAccessKey: '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'
+		accessKeyId: PUBLIC_AWS_ACCESS_KEY_ID,
+		secretAccessKey: PUBLIC_AWS_SECRET_ACCESS_KEY
 	}
 };
 
-export function initializeDynamo(clientName = 'default') {
-	if (clients[clientName]) return clients[clientName];
+export function initializeDynamo() {
+	if (dynamoClient) return dynamoClient;
 
-	const client = new DynamoDBClient(configuration);
-	clients[clientName] = client;
+	dynamoClient = new DynamoDBClient(configuration);
 
-	return client;
+	return dynamoClient;
 }
