@@ -16,6 +16,7 @@
 	}
 
 	onMount(() => {
+		console.log(pdfjsLib);
 		readPosts(dynamo).then((res) => {
 			posts = res.Items;
 		});
@@ -36,13 +37,9 @@
 			{:else if type.includes('image')}
 				<img class="w-full" src={url} alt="" />
 			{:else}
-				<object
-					class="w-full"
-					type="application/pdf"
-					data={url + '#toolbar=0'}
-					width="100%"
-					height="144px"
-				/>
+				<a class="pdf-preview text-[10rem] flex justify-center" href={url}>
+					<img src={post?.preview?.S ?? ''} />
+				</a>
 			{/if}
 			<div class="px-4">
 				<p class="text-base">
@@ -70,5 +67,10 @@
 
 		height: 50vw;
 		object-fit: cover;
+	}
+
+	.pdf-preview {
+		object-fit: contain;
+		object-position: 50% 0;
 	}
 </style>

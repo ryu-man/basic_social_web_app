@@ -3,7 +3,7 @@
 	import { Upload } from 'lucide-svelte';
 	import { Modal } from '$lib/components';
 	import { getAppContext } from '$lib/context';
-	import { createPost, uploadVideo } from '$lib/models';
+	import { createPost, uploadBlob, uploadPostFile } from '$lib/models';
 	import type { Progress } from '@aws-sdk/lib-storage';
 
 	const { dynamo, s3 } = getAppContext();
@@ -17,8 +17,52 @@
 	let error: Error | undefined = undefined;
 	let progress: Progress | undefined = undefined;
 	let uploading = false;
+	let pdfPreviewBlob: Blob | null;
 
 	onMount(() => {});
+
+	function pdf(node: HTMLCanvasElement, file: File) {
+		render(node, file);
+
+		return {
+			update(file: File) {
+				render(node, file);
+			}
+		};
+	}
+
+	function render(node: HTMLCanvasElement, file: File) {
+		pdfjsLib.getDocument(URL.createObjectURL(file)).promise.then(async (pdf) => {
+			const page = await pdf.getPage(1);
+
+			const outputScale = window.devicePixelRatio || 1;
+			const viewport = page.getViewport({ scale: 1.5 });
+			node.width = viewport.width;
+			node.height = viewport.height;
+			// console.log('viewport::', viewport, node.clientHeight);
+
+			// const scale = node.clientWidth / (viewport.width * 1.2);
+			// const scaledViewport = page.getViewport({ scale });
+			// node.style.height = scaledViewport.height + 'px';
+			// console.log(scale);
+
+			const context = node.getContext('2d');
+
+			const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+			await tick();
+			await page.render({
+				canvasContext: context,
+				viewport: viewport
+			}).promise;
+
+			// const imageData = context?.getImageData(0, 0, scaledViewport.width, scaledViewport.height);
+
+			node.toBlob((blob) => {
+				pdfPreviewBlob = blob;
+			}, 'image/jpg');
+		});
+	}
 
 	function openFilePicker(node: HTMLInputElement) {
 		node.click();
@@ -64,14 +108,25 @@
 	async function onUploadHandler() {
 		if (!file) return;
 		uploading = true;
-		const uploadRes = await uploadVideo(s3, file, (p) => {
+		const uploadRes = await uploadPostFile(s3, file, (p) => {
 			progress = p;
 		}).catch((err) => {
 			uploading = false;
 		});
 
 		if (uploadRes) {
-			console.log(uploadRes);
+			let additionalAttributes = {};
+			if (file.type === 'application/pdf' && pdfPreviewBlob) {
+				const preview = await uploadBlob(s3, pdfPreviewBlob, (p) => {
+					progress = p;
+				});
+				console.log(preview);
+				additionalAttributes = {
+					preview: {
+						S: preview.Location || ''
+					}
+				};
+			}
 			const res = await createPost(dynamo, {
 				description: {
 					S: description
@@ -81,7 +136,8 @@
 				},
 				type: {
 					S: file.type
-				}
+				},
+				...additionalAttributes
 			}).then((res) => {
 				uploading = false;
 				return res;
@@ -116,10 +172,10 @@
 			on:change={onFileChange}
 		/>
 
-		<h1 class="py-2 font-bold text-lg">Upload new video</h1>
+		<h1 class="py-2 font-bold text-lg">Upload new post</h1>
 
 		<div
-			class="preview cursor-pointer h-40 rounded-lg overflow-hidden bg-white border"
+			class="preview cursor-pointer h-40 w-full rounded-lg overflow-hidden bg-white border"
 			on:click={openFilePickerHandler}
 		>
 			{#if file}
@@ -130,11 +186,18 @@
 					<!-- else content here -->
 					<video class="w-full h-full" src={URL.createObjectURL(file)} />
 				{:else}
-					<object
+					<!-- <object
 						data={URL.createObjectURL(file)}
 						type="application/pdf"
 						width="100%"
 						height="100%"
+					/> -->
+					<canvas class="w-full h-full max-w-ful hidden" use:pdf={file} />
+
+					<img
+						class="pdf-preview w-full h-full"
+						src={pdfPreviewBlob ? URL.createObjectURL(pdfPreviewBlob) : ''}
+						alt=""
 					/>
 				{/if}
 			{:else}
@@ -165,7 +228,7 @@
 
 			<button
 				class="bg-gray-900 text-gray-50 p-2 rounded-full"
-				disabled={!file}
+				disabled={!file || (file.type === 'application/pdf' && !pdfPreviewBlob)}
 				on:click={onUploadHandler}
 			>
 				<div class:uploading>
@@ -186,6 +249,11 @@
 		object-position: 100% 25%;
 	}
 
+	img.pdf-preview {
+		object-fit: contain;
+		object-position: 50% 0;
+	}
+
 	.preview {
 		@apply flex justify-center items-center;
 
@@ -194,7 +262,7 @@
 
 	button > .uploading {
 		animation: uploading;
-		animation-duration: .6s;
+		animation-duration: 0.6s;
 		animation-timing-function: linear;
 		animation-iteration-count: infinite;
 	}

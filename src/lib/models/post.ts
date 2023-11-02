@@ -75,13 +75,37 @@ export function readPosts(client: DynamoDBClient) {
 }
 
 export type ProgressCallback = (value: Progress) => void;
-export async function uploadVideo(
+
+export async function uploadPostFile(
 	client: S3Client,
 	file: File,
 	onProgress: ProgressCallback = (_) => {}
 ) {
 	const bucketName = 'posts-media-1';
 	const fileName = crypto.randomUUID() + file.name.slice(file.name.lastIndexOf('.'));
+	const partSize = 1024 * 1024 * 10;
+
+	return new Upload({
+		client,
+		partSize,
+		queueSize: 4,
+		params: {
+			Bucket: bucketName,
+			ACL: 'public-read',
+			Key: fileName,
+			Body: file
+		}
+	})
+		.on('httpUploadProgress', onProgress)
+		.done();
+}
+export async function uploadBlob(
+	client: S3Client,
+	file: Blob,
+	onProgress: ProgressCallback = (_) => {}
+) {
+	const bucketName = 'posts-media-1';
+	const fileName = crypto.randomUUID() + '.' + file.type.slice(file.type.lastIndexOf('/') + 1);
 	const partSize = 1024 * 1024 * 10;
 
 	return new Upload({

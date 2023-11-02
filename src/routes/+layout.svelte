@@ -25,3 +25,7 @@
 <div class="app-root w-full h-full flex flex-col relative">
 	<slot />
 </div>
+
+<svelte:head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.4.456/pdf.min.js"></script>
+</svelte:head>
