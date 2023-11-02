@@ -42,8 +42,6 @@
 		"@aws-sdk/lib-storage": "^3.433.0",
 		"aws-sdk": "^2.1475.0",
 		"lucide-svelte": "^0.288.0",
-		"nanoid": "^5.0.2",
-		"pdf-thumbnail": "^1.0.6",
-		"pdf2pic": "^3.0.3"
+		"nanoid": "^5.0.2"
 	}
 }
