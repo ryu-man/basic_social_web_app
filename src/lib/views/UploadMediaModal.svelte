@@ -227,8 +227,8 @@
 			</div>
 
 			<button
-				class="bg-gray-900 text-gray-50 p-2 rounded-full"
-				disabled={!file || (file.type === 'application/pdf' && !pdfPreviewBlob)}
+				class="bg-gray-900 text-gray-50 p-2 rounded-full disabled:bg-gray-500"
+				disabled={!file || (file.type === 'application/pdf' && !pdfPreviewBlob) || !description}
 				on:click={onUploadHandler}
 			>
 				<div class:uploading>
