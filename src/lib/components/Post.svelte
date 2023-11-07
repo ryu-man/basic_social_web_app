@@ -5,7 +5,7 @@
 	let type = post?.type?.S;
 </script>
 
-<div class="post pb-4 overflow-hidden border rounded-lg flex flex-col gap-4" on:click>
+<div class="post pb-4 overflow-hidden border rounded-lg flex flex-col gap-4 cursor-pointer" on:click>
 	{#if type.includes('video')}
 		<!-- content here -->
 		<video class="w-full pointer-events-none" src={url} alt="" controls />
