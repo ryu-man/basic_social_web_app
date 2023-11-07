@@ -1,6 +1,6 @@
 <script>
 	import { initializeDynamo, initializeS3 } from '$lib/services';
-	import { setAppContext } from '$lib/context';
+	import { setAppContext, setPostContext } from '$lib/context';
 	import './app.css';
 	import { onMount } from 'svelte';
 	import { ListTablesCommand } from '@aws-sdk/client-dynamodb';
@@ -13,7 +13,8 @@
 
 	// share clients within the context
 	setAppContext({ dynamo, s3 });
-
+	setPostContext()
+	
 	onMount(() => {
 		const command = new ListTablesCommand({});
 		dynamo.send(command).then((res) => {

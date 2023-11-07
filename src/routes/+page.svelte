@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { Appbar, UploadMediaModal } from '$lib/views';
-	import { Modal } from '$lib/components';
+	import { Modal, Post } from '$lib/components';
 	import { Plus } from 'lucide-svelte';
 	import { readPosts } from '$lib/models';
 	import { onMount } from 'svelte';
-	import { getAppContext } from '$lib/context';
+	import { getAppContext, getPostContext } from '$lib/context';
+	import { goto } from '$app/navigation';
 
 	const { dynamo, s3 } = getAppContext();
+	const context = getPostContext();
 
 	let openUploadMedialModal = false;
 	let posts = [];
@@ -16,37 +18,24 @@
 	}
 
 	onMount(() => {
-		console.log(pdfjsLib);
 		readPosts(dynamo).then((res) => {
 			posts = res.Items;
 		});
 	});
+
+	function onPostClickedHandler(post: Record<string, any>) {
+		return () => {
+			context.post = post;
+			goto('/post');
+		};
+	}
 </script>
 
 <Appbar />
 
 <div class="posts px-4 flex flex-col gap-2">
 	{#each posts as post}
-		{@const url = post?.url?.S ?? ''}
-		{@const type = post?.type?.S}
-
-		<div class="post pb-4 overflow-hidden border rounded-lg flex flex-col gap-4">
-			{#if type.includes('video')}
-				<!-- content here -->
-				<video class="w-full" src={url} alt="" controls />
-			{:else if type.includes('image')}
-				<img class="w-full" src={url} alt="" />
-			{:else}
-				<a class="pdf-preview text-[10rem] flex justify-center" href={url}>
-					<img src={post?.preview?.S ?? ''} />
-				</a>
-			{/if}
-			<div class="px-4">
-				<p class="text-base">
-					{post.description.S}
-				</p>
-			</div>
-		</div>
+		<Post {post} on:click={onPostClickedHandler(post)} />
 	{/each}
 </div>
 
