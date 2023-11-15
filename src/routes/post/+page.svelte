@@ -23,7 +23,7 @@
 {#if post}
 	<!-- content here -->
 	<div
-		class="post pb-4 overflow-hidden border rounded-lg flex flex-col gap-4 relative w-full h-full flex-1"
+		class="post-page pb-4 overflow-hidden border rounded-lg flex flex-col gap-4 relative w-full h-full flex-1"
 		on:click
 	>
 		<div class="relative z-0">
@@ -46,9 +46,14 @@
 {/if}
 
 <style lang="postcss">
+	.post-page {
+		overflow-y: scroll;
+		overflow-y: overlay;
+	}
 	video,
 	img {
 		@apply bg-gray-900;
 		object-fit: contain;
+		height: 100vh;
 	}
 </style>
