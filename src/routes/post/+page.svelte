@@ -22,10 +22,7 @@
 
 {#if post}
 	<!-- content here -->
-	<div
-		class="post-page pb-4 overflow-hidden border rounded-lg flex flex-col gap-4 relative w-full h-full flex-1"
-		on:click
-	>
+	<div class="post-page" on:click>
 		<div class="relative z-0">
 			{#if type.includes('video')}
 				<!-- content here -->
@@ -37,7 +34,7 @@
 			{/if}
 		</div>
 
-		<div class="p-4 text-black">
+		<div class="description">
 			<p class="text-base">
 				{post?.description?.S ?? ''}
 			</p>
@@ -47,9 +44,14 @@
 
 <style lang="postcss">
 	.post-page {
-		overflow-y: scroll;
-		overflow-y: overlay;
+		@apply pb-4 overflow-hidden border rounded-lg flex flex-col relative w-full h-full flex-1 p-0 m-0;
 	}
+	.description {
+		@apply text-gray-500 absolute left-0 bottom-0 w-full;
+
+		padding: 4vw;
+	}
+
 	video,
 	img {
 		@apply bg-gray-900;
