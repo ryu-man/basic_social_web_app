@@ -23,7 +23,7 @@
 {#if post}
 	<!-- content here -->
 	<div class="post-page" on:click>
-		<div class="relative z-0">
+		<div class="relative z-0 flex-1">
 			{#if type.includes('video')}
 				<!-- content here -->
 				<video class="w-full" src={url} alt="" controls={true} autoplay />
@@ -44,18 +44,20 @@
 
 <style lang="postcss">
 	.post-page {
-		@apply pb-4 overflow-hidden border rounded-lg flex flex-col relative w-full h-full flex-1 p-0 m-0;
+		@apply overflow-hidden border rounded-lg flex flex-col relative w-full h-full flex-1 p-0 m-0;
+		height: 100vh;
 	}
 	.description {
-		@apply text-gray-500 absolute left-0 bottom-0 w-full;
+		@apply text-black bg-white w-full;
 
 		padding: 4vw;
 	}
 
 	video,
 	img {
-		@apply bg-gray-900;
+		@apply bg-white flex-1;
 		object-fit: contain;
-		height: 100vh;
+		height: 100%;
+		
 	}
 </style>
