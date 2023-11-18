@@ -55,9 +55,8 @@
 
 	video,
 	img {
-		@apply bg-white flex-1;
+		@apply bg-white flex-1 absolute top-0 left-0 w-full h-full;
 		object-fit: contain;
 		height: 100%;
-		
 	}
 </style>
