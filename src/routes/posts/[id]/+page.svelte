@@ -23,8 +23,6 @@
 		}
 	});
 
-	$: console.log(post);
-
 	$: url = post?.url?.S ?? '';
 	$: type = post?.type?.S;
 
