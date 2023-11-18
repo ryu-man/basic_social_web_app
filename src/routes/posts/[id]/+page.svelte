@@ -1,11 +1,30 @@
 <script lang="ts">
 	import { ArrowLeft } from 'lucide-svelte';
-	import { getPostContext } from '$lib/context';
+	import { getPostContext, getAppContext } from '$lib/context';
+	import { readPost } from '$lib/models';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import type { AttributeValue } from '@aws-sdk/client-dynamodb';
 
+	const { dynamo, s3 } = getAppContext();
 	const context = getPostContext();
 
-	$: post = context?.post;
+	let post: Record<string, AttributeValue> | undefined = undefined;
+
+	onMount(() => {
+		if (context.post) {
+			post = context.post;
+		} else {
+			console.log($page.params.id)
+			readPost(dynamo, $page.params.id).then((res) => {
+				post = res.Items?.at(0);
+			});
+		}
+	});
+
+	$: console.log(post);
+
 	$: url = post?.url?.S ?? '';
 	$: type = post?.type?.S;
 

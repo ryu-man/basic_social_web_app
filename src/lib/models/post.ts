@@ -60,8 +60,20 @@ export function updatePost(client: DynamoDBClient, id: string, item: Record<stri
 	return docClient.send(command);
 }
 
-export function readPost(client: DynamoDBClient) {
-	const command = new ScanCommand({ TableName: 'posts' });
+export function readPost(client: DynamoDBClient, id: string) {
+	const command = new ScanCommand({
+		TableName: 'posts',
+		ScanFilter: {
+			id: {
+				ComparisonOperator: 'EQ',
+				AttributeValueList: [
+					{
+						S: id
+					}
+				]
+			}
+		}
+	});
 
 	const docClient = DynamoDBDocumentClient.from(client);
 	return docClient.send(command);

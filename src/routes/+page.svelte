@@ -26,7 +26,7 @@
 	function onPostClickedHandler(post: Record<string, any>) {
 		return () => {
 			context.post = post;
-			goto('/post');
+			goto('/posts/'+post.id?.S);
 		};
 	}
 </script>
